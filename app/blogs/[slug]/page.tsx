@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getDetail } from '@/libs/microcms';
 import Article from '@/components/Article';
 
@@ -19,20 +20,23 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   });
 
   return {
-    title: data.title,
-    description: data.description,
+    title: data?.title ?? '',
+    description: data?.description ?? '',
     openGraph: {
-      title: data.title,
-      description: data.description,
+      title: data?.title ?? '',
+      description: data?.description ?? '',
       images: [data?.thumbnail?.url || ''],
     },
   };
 }
-
 export default async function Page({ params, searchParams }: Props) {
   const data = await getDetail(params.slug, {
     draftKey: searchParams.dk,
   });
+
+  if (!data) {
+    notFound();
+  }
 
   return <Article data={data} />;
 }
